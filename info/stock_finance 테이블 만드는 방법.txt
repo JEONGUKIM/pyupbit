@@ -103,9 +103,9 @@ from sqlalchemy import Integer, Text, Float
     if rows[0][6] != self.open_api.today:
         self.realtime_daily_buy_list_check()
 
-    로직 위에 아래와 같이 self._create_stockfinance() 추가. (if와 같은 라인)
+    로직 위에 아래와 같이 self._create_stock_finance() 추가. (if와 같은 라인)
 
-    self._create_stockfinance()
+    self._create_stock_finance()
 
     if rows[0][6] != self.open_api.today:
         self.realtime_daily_buy_list_check()

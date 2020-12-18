@@ -1,4 +1,4 @@
-ver = "#version 1.3.7"
+ver = "#version 1.3.8"
 print(f"simulator_func_mysql Version: {ver}")
 import sys
 is_64bits = sys.maxsize > 2**32
@@ -1012,9 +1012,7 @@ class simulator_func_mysql:
         # 다음에 투자할 금액은 invest_unit과 같은 금액이다.
         self.df_all_item.loc[0, 'invest_unit'] = self.invest_unit
         # self.df_all_item.loc[0, 'reinvest_unit'] = self.invest_unit
-
-        self.df_all_item.loc[0, 'purchase_rate']
-
+        self.df_all_item.loc[0, 'sell_rate'] = float(0)
         self.df_all_item.loc[0, 'yes_close'] = yesterday_close
         self.df_all_item.loc[0, 'close'] = df.loc[index, 'close']
 
@@ -1057,11 +1055,8 @@ class simulator_func_mysql:
         # AttributeError: 'numpy.int64' object has no attribute 'translate' 에러 발생
         self.df_all_item = self.df_all_item.fillna(0)
 
-        if self.is_simul_table_exist(self.db_name, "all_item_db"):
-            self.df_all_item.to_sql('all_item_db', self.engine_simulator, if_exists='append')
-        else:
-            self.df_all_item.to_sql('all_item_db', self.engine_simulator, if_exists='replace')
-
+        self.df_all_item.to_sql('all_item_db', self.engine_simulator, if_exists='append')
+        
     # 보유한 종목들을 가져오는 함수
     # sell_date가 0이면 현재 보유 중인 종목이다. 매도를 할 경우 sell_date에 매도 한 날짜가 찍힌다.
     def get_data_from_possessed_item(self):

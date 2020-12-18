@@ -212,9 +212,6 @@ ex)
                     self.trade_check_num = 3
                     self.rarry_k = 0.5
 
-            elif self.simul_num == 15:
-                # 향후 업데이트 예정 
-
             elif self.simul_num == 16:
                 self.db_to_realtime_daily_buy_list_num = 11
 
