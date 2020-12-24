@@ -67,7 +67,7 @@ print("\n*************************************ex3*******************************
 '''
 
 
-class Stock2:  # Stock 이라는 이름을 가진 클래스를 정의
+class Stock2:  # Stock2 이라는 이름을 가진 클래스를 정의
     def __init__(self, stock_name, stock_price, stock_rate):  # 메서드(method = function) : 클래스 내부에 정의 된 함수
         self.name = stock_name  # 인스턴스변수 : self.name, self.price, self.rate를 인스턴스 변수라고 한다.
         self.price = stock_price
@@ -75,7 +75,7 @@ class Stock2:  # Stock 이라는 이름을 가진 클래스를 정의
         print(f" self 의 일련번호: {id(self)}")
 
 
-# item1, item2, item3은 객체 (=Stock이라는 클래스의 인스턴스)
+# item1, item2, item3은 객체 (=Stock2이라는 클래스의 인스턴스)
 item1 = Stock2('삼성전자', 60900, 3.5)
 
 # id() 내장 함수는 객체를 입력값으로 받아서 객체의 고유값(일련번호)을 반환하는 함수
@@ -207,7 +207,7 @@ class 안에서 객체 생성 예제
 '''
 
 
-class Test:  # Stock 이라는 이름을 가진 클래스를 정의
+class Test:  # Test 이라는 이름을 가진 클래스를 정의
     def __init__(self, tx, ty):  # 메서드(method = function) : 클래스 내부에 정의 된 함수
         self.x = tx  # 인스턴스변수 : self.name, self.price, self.rate를 인스턴스 변수라고 한다.
         self.y = ty
@@ -221,7 +221,6 @@ class Test2:
         print(f"self.item.x : {self.item.x}, self.item.y : {self.item.y}")
 
 
-# item1, item2, item3은 객체 (=Stock이라는 클래스의 인스턴스)
 t = Test2()
 t.print()
 print(f"t.item.x : {t.item.x}, t.item.y : {t.item.y}")
