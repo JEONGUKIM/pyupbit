@@ -23,6 +23,9 @@ from keras.models import Sequential
 from keras.layers import Dense, LSTM, BatchNormalization
 from library import cf
 
+
+plt.rcParams['font.family'] = 'Malgun Gothic'
+
 # daily_craw, min_craw 모두 선택 가능
 conn = pymysql.connect(host=cf.db_ip,
                        port=int(cf.db_port),

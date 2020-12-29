@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from sqlalchemy import Integer, Text, Float
 
-ver = "#version 1.3.13"
+ver = "#version 1.3.14"
 print(f"collector_api Version: {ver}")
 
 import datetime
@@ -291,7 +291,8 @@ class collector_api():
     # 틱(1분 별) 데이터를 가져오는 함수
     def set_min_crawler_table(self, code, code_name):
         df = self.open_api.get_total_data_min(code, code_name, self.open_api.today)
-
+        if len(df) == 0:
+            return 1
         df_temp = DataFrame(df,
                             columns=['date', 'check_item', 'code', 'code_name', 'd1_diff_rate', 'close', 'open', 'high',
                                      'low',
@@ -409,6 +410,8 @@ class collector_api():
 
     def set_daily_crawler_table(self, code, code_name):
         df = self.open_api.get_total_data(code, code_name, self.open_api.today)
+        if len(df) == 0:
+            return 1
         oldest_row = df.iloc[-1]
         check_row = None
 

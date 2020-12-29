@@ -18,6 +18,8 @@ from tensorflow.keras.layers import LSTM, Dense, Dropout
 from tensorflow.keras.models import Sequential
 from tensorflow.python.keras.callbacks import EarlyStopping
 
+plt.rcParams['font.family'] = 'Malgun Gothic'
+
 
 class DataNotEnough(BaseException):
     pass
