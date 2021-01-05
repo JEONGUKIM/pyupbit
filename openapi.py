@@ -323,13 +323,13 @@ class Openapi(QAxWidget):
 
     def comm_rq_data(self, rqname, trcode, next, screen_no):
 
-        self.dynamicCall("CommRqData(QString, QString, int, QString", rqname, trcode, next, screen_no)
+        self.dynamicCall("CommRqData(QString, QString, int, QString)", rqname, trcode, next, screen_no)
         time.sleep(TR_REQ_TIME_INTERVAL)
         self.tr_event_loop = QEventLoop()
         self.tr_event_loop.exec_()
 
     def _get_comm_data(self, code, field_name, index, item_name):
-        ret = self.dynamicCall("GetCommData(QString, QString, int, QString", code, field_name, index, item_name)
+        ret = self.dynamicCall("GetCommData(QString, QString, int, QString)", code, field_name, index, item_name)
         return ret.strip()
 
     def _get_repeat_cnt(self, trcode, rqname):

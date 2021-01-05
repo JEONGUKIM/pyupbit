@@ -315,7 +315,7 @@ class open_api(QAxWidget):
 
     def comm_rq_data(self, rqname, trcode, next, screen_no):
         self.exit_check()
-        ret = self.dynamicCall("CommRqData(QString, QString, int, QString", rqname, trcode, next, screen_no)
+        ret = self.dynamicCall("CommRqData(QString, QString, int, QString)", rqname, trcode, next, screen_no)
         if ret == -200:
             raise RateLimitExceeded('요청제한 횟수를 초과하였습니다.')
 
@@ -329,7 +329,7 @@ class open_api(QAxWidget):
     def _get_comm_data(self, code, field_name, index, item_name):
         # logger.debug('calling GetCommData...')
         # self.exit_check()
-        ret = self.dynamicCall("GetCommData(QString, QString, int, QString", code, field_name, index, item_name)
+        ret = self.dynamicCall("GetCommData(QString, QString, int, QString)", code, field_name, index, item_name)
         return ret.strip()
 
     def _get_repeat_cnt(self, trcode, rqname):

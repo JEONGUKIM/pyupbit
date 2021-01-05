@@ -28,28 +28,46 @@ base_script = """\
 @Echo off
 @Echo {bat_name} Start
 set x=0
-call "{conda_path}\\Scripts\\activate.bat" {venv}
-@taskkill /f /im python.exe 2> NUL
+set time_unit=1
+set max={max}
+set target_window="{bat_name}"
+set file="%~dp0\\..\\{file_name}"
+set activate_path="{conda_path}\\Scripts\\activate.bat"
+IF EXIST %activate_path% (
+    call %activate_path% {venv}
+) ELSE (
+    echo Cannot find Anaconda3 activate.bat in %activate_path%
+    pause
+    exit 1
+)
 
 :repeat
-@tasklist | find "python.exe" /c > NUL
-IF %ErrorLevel%==1 goto 1
-IF NOT %ErrorLevel%==1 goto 0
+tasklist /fi "imagename eq python.exe" /v /fo:csv | findstr /r /c:".*%target_window%[^,]*$" > nul
+IF errorlevel 1 goto 1
 
 :0
-set /a x=%x%+1
-echo x : %x%
-::echo max : %max%
-IF %x%==%max% @taskkill /f /im "python.exe"
+@timeout /t %time_unit% /nobreak > nul
+echo %x%
+IF %x% GEQ %max% (
+    echo Killing collectors... && for /f "tokens=2 delims=," %%a in ('^
+        tasklist /fi "imagename eq python.exe" /v /fo:csv ^| findstr /r /c:".*%target_window%[^,]*$"^
+    ') do taskkill /pid %%a /f && set x=0 && goto repeat
+)
+set /A "x+=time_unit"
 goto repeat
 
 :1
+echo Starting a new session...
+IF EXIST %file% (
+    start "%target_window%" python %file%
+) ELSE (
+    echo Cannot find collector_v3.py in %file%
+    pause
+    exit 1
+)
+@timeout /t 3 /nobreak > nul
 set x=0
-set max=5000
-
-start python "%~dp0\\..\\{file_name}.py"
-timeout 5 > NUL
-goto repeat
+goto 0
 """
 
 
@@ -58,10 +76,13 @@ def _kw_base_generator(venv):
 
     for bat_name in bats.keys():
         file_name = bat_name
+        max_count = 700
         if bat_name == 'collector':
             file_name += '_v3'
+            max_count = 5000
+        file_name += '.py'
         bats[bat_name] = base_script.format(bat_name=bat_name, file_name=file_name,
-                                            conda_path=conda_info['conda_prefix'], venv=venv)
+                                            conda_path=conda_info['conda_prefix'], venv=venv, max=max_count)
     return bats
 
 
