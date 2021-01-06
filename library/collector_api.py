@@ -45,25 +45,23 @@ class collector_api():
         # kospi(stock_kospi), kosdaq(stock_kosdaq), konex(stock_konex)
         # 관리종목(stock_managing), 불성실법인종목(stock_insincerity) 업데이트
         if rows[0][0] != self.open_api.today:
-            self.open_api.check_balance()
-            self.get_code_list()
+            self.get_code_list()  # 촬영 후 일부 업데이트 되었습니다.
             self._create_stock_info()
             check_sql = f"UPDATE setting_data SET code_update='{self.open_api.today}' limit 1"
             self.engine_JB.execute(check_sql)
 
-        # 잔고 및 보유종목 현황 db setting   &  # sql % setting
+        # 촬영 후 콜렉팅 순서가 일부 업데이트 되었습니다.
+        # 잔고 및 보유종목 현황 db setting  & 당일 종목별 실현 손익
         if rows[0][1] != self.open_api.today or rows[0][2] != self.open_api.today:
-            self.py_check_balance()
             self.open_api.set_invest_unit()
+            self.db_to_today_profit_list()
+            self.py_check_balance()
+            self.db_to_jango()
 
         # possessed_item(현재 보유종목) 테이블 업데이트
         if rows[0][2] != self.open_api.today:
             self.open_api.db_to_possesed_item()
             self.open_api.setting_data_possesed_item()
-
-        # 당일 종목별 실현 손익 db
-        if rows[0][3] != self.open_api.today:
-            self.db_to_today_profit_list()
 
         # daily_craw db 업데이트
         if rows[0][7] != self.open_api.today:
@@ -905,28 +903,9 @@ class collector_api():
         self.engine_JB.execute(sql % (self.open_api.today))
         # self.open_api.jackbot_db_con.commit()
 
+    # 일자별 실현손익
     def py_check_balance(self):
         logger.debug("py_check_balance!!!")
-        # 1차원 정보 저장
-        # 1차원 / 2차원 인스턴스 변수 생성
-        self.open_api.reset_opw00018_output()
-
-        self.open_api.set_input_value("계좌번호", self.open_api.account_number)
-        self.open_api.set_input_value("비밀번호입력매체구분", 00);
-        # 조회구분 = 1:추정조회, 2: 일반조회
-        self.open_api.set_input_value("조회구분", 1);
-
-        self.open_api.comm_rq_data("opw00001_req", "opw00001", 0, "2000")
-
-        self.open_api.set_input_value("계좌번호", self.open_api.account_number)
-
-        self.open_api.comm_rq_data("opw00018_req", "opw00018", 0, "2000")
-
-        while self.open_api.remained_data:
-            self.open_api.set_input_value("계좌번호", self.open_api.account_number)
-
-            self.open_api.comm_rq_data("opw00018_req", "opw00018", 2, "2000")
-
         # 일자별 실현손익 출력
         self.open_api.set_input_value("계좌번호", self.open_api.account_number)
         # 	시작일자 = YYYYMMDD (20170101 연도4자리, 월 2자리, 일 2자리 형식)
@@ -943,9 +922,6 @@ class collector_api():
             self.open_api.set_input_value("종료일자", self.open_api.today)
             self.open_api.comm_rq_data("opt10074_req", "opt10074", 2, "0329")
 
-        # 거래내역
-        # # balance
-        self.db_to_jango()
 
     # stock_info 테이블을 만드는 함수
     def _create_stock_info(self):
