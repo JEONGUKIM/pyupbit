@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from sqlalchemy import Integer, Text, Float
 
-ver = "#version 1.3.14"
+ver = "#version 1.3.15"
 print(f"collector_api Version: {ver}")
 
 import datetime
@@ -931,24 +931,16 @@ class collector_api():
         self.open_api.set_input_value("계좌번호", self.open_api.account_number)
         # 	시작일자 = YYYYMMDD (20170101 연도4자리, 월 2자리, 일 2자리 형식)
         self.open_api.set_input_value("시작일자", "20170101")
-        #
         # 	종료일자 = YYYYMMDD (20170101 연도4자리, 월 2자리, 일 2자리 형식)
         self.open_api.set_input_value("종료일자", self.open_api.today)
-        # opt opw 구분해라!!!!
-
         self.open_api.comm_rq_data("opt10074_req", "opt10074", 0, "0329")
         while self.open_api.remained_data:
             # # comm_rq_data 호출하기 전에 반드시 set_input_value 해야한다. 초기화 되기 때문
             self.open_api.set_input_value("계좌번호", self.open_api.account_number)
-
             # 	시작일자 = YYYYMMDD (20170101 연도4자리, 월 2자리, 일 2자리 형식)
             self.open_api.set_input_value("시작일자", "20170101")
-            #
             # 	종료일자 = YYYYMMDD (20170101 연도4자리, 월 2자리, 일 2자리 형식)
-            self.open_api.set_input_value("종료일자", "20180930")
-
-            # 	구분 = 0:전체, 1:입출금, 2:입출고, 3:매매, 4:매수, 5:매도, 6:입금, 7:출금, A:예탁담보대출입금, F:환전
-            self.open_api.set_input_value("구분", "0")
+            self.open_api.set_input_value("종료일자", self.open_api.today)
             self.open_api.comm_rq_data("opt10074_req", "opt10074", 2, "0329")
 
         # 거래내역
