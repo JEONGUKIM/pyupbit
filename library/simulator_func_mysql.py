@@ -1,4 +1,4 @@
-ver = "#version 1.3.8"
+ver = "#version 1.3.9"
 print(f"simulator_func_mysql Version: {ver}")
 import sys
 is_64bits = sys.maxsize > 2**32
@@ -1656,12 +1656,17 @@ class simulator_func_mysql:
 
     # 분 데이터를 가져오는 함수
     def get_date_min_for_simul(self, simul_start_date):
-        simul_start_date_min = simul_start_date + self.start_min
-        simul_end_date_min = simul_start_date + "1530"
+        # 촬영 후 업데이트 되었습니다
+        dt_format = '%Y%m%d%H%M'
+        simul_time = datetime.datetime.strptime(simul_start_date + "0900", dt_format)
+        min_delta = datetime.timedelta(minutes=1)
 
-        sql = "select date from `gs글로벌` where date >= '%s' and date <='%s' and open != 0 group by date"
-        self.min_date_rows = self.engine_craw.execute(sql % (simul_start_date_min, simul_end_date_min)).fetchall()
+        times = []
+        while simul_time.hour != 15 or simul_time.minute != 31:
+            times.append((datetime.datetime.strftime(simul_time, dt_format),))
+            simul_time += min_delta
 
+        self.min_date_rows = times
     # 분별 시뮬레이팅 함수
     # 새로운 종목 매수 및 보유한 종목의 데이터를 업데이트 하는 함수, 매도 함수도 포함
     def trading_by_min(self, date_rows_today, date_rows_yesterday, i):

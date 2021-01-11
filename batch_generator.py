@@ -36,38 +36,41 @@ set activate_path="{conda_path}\\Scripts\\activate.bat"
 IF EXIST %activate_path% (
     call %activate_path% {venv}
 ) ELSE (
-    echo Cannot find Anaconda3 activate.bat in %activate_path%
+    echo Cannot find %activate_path%
     pause
     exit 1
 )
+IF NOT EXIST %file% (
+    echo Cannot find %file%
+    pause
+    exit 1
+)
+goto start_point
 
-:repeat
-tasklist /fi "imagename eq python.exe" /v /fo:csv | findstr /r /c:".*%target_window%[^,]*$" > nul
-IF errorlevel 1 goto 1
 
-:0
+:kill_point
+set x=0
+echo Killing {bat_name}...
+@taskkill /pid %process_id% /f 2> nul
+
+
+:start_point
+@taskkill /f /im "opstarter.exe" 2> nul
+echo Starting a new session...
+start "%target_window%" python %file%
+for /F "tokens=2 delims=," %%A in ('tasklist /fi "imagename eq python.exe" /v /fo:csv ^| findstr /r /c:".*%target_window%[^,]*$"') do set process_id=%%A
+
+
+:count_point
 @timeout /t %time_unit% /nobreak > nul
 echo %x%
+tasklist /fi "imagename eq python.exe" /v /fo:csv | findstr /r /c:".*%target_window%[^,]*$" > nul
+IF errorlevel 1 goto kill_point
 IF %x% GEQ %max% (
-    echo Killing collectors... && for /f "tokens=2 delims=," %%a in ('^
-        tasklist /fi "imagename eq python.exe" /v /fo:csv ^| findstr /r /c:".*%target_window%[^,]*$"^
-    ') do taskkill /pid %%a /f && set x=0 && goto repeat
+    goto kill_point
 )
 set /A "x+=time_unit"
-goto repeat
-
-:1
-echo Starting a new session...
-IF EXIST %file% (
-    start "%target_window%" python %file%
-) ELSE (
-    echo Cannot find collector_v3.py in %file%
-    pause
-    exit 1
-)
-@timeout /t 3 /nobreak > nul
-set x=0
-goto 0
+goto count_point
 """
 
 

@@ -1,4 +1,6 @@
-ver = "#version 1.3.10"
+from functools import partial
+
+ver = "#version 1.3.11"
 print(f"open_api Version: {ver}")
 
 from library.simulator_func_mysql import *
@@ -48,8 +50,14 @@ event.listen(Pool, 'connect', setup_sql_mod)
 event.listen(Pool, 'first_connect', setup_sql_mod)
 
 
-class RateLimitExceeded(BaseException):
+class RateLimitExceeded(Exception):
     pass
+
+
+def timedout_exit(widget):
+    logger.debug("서버로 부터 응답이 없어 프로그램을 종료합니다.")
+    time.sleep(3)
+    sys.exit(-1)
 
 
 class open_api(QAxWidget):
@@ -324,6 +332,12 @@ class open_api(QAxWidget):
         if ret == 0:
             self.tr_event_loop = QEventLoop()
             self.tr_loop_count += 1
+            # 영상 촬영 후 추가 된 코드입니다 (서버 응답이 늦을 시 예외 발생)
+            self.timer = QTimer()
+            self.timer.timeout.connect(partial(timedout_exit, self))
+            self.timer.setSingleShot(True)
+            self.timer.start(5000)
+            #########################################################
             self.tr_event_loop.exec_()
 
     def _get_comm_data(self, code, field_name, index, item_name):
