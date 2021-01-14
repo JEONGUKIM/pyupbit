@@ -82,7 +82,7 @@ def _kw_base_generator(venv):
         max_count = 700
         if bat_name == 'collector':
             file_name += '_v3'
-            max_count = 5000
+            max_count = 1200
         file_name += '.py'
         bats[bat_name] = base_script.format(bat_name=bat_name, file_name=file_name,
                                             conda_path=conda_info['conda_prefix'], venv=venv, max=max_count)
