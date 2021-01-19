@@ -1,6 +1,6 @@
 from functools import partial
 
-ver = "#version 1.3.11"
+ver = "#version 1.3.12"
 print(f"open_api Version: {ver}")
 
 from library.simulator_func_mysql import *
@@ -646,7 +646,7 @@ class open_api(QAxWidget):
             self.set_input_value("수정주가구분", 1)
             self.comm_rq_data("opt10080_req", "opt10080", 2, "1999")
 
-            if self.ohlcv['date'][-1] < self.craw_db_last_min:
+            if not self.ohlcv or self.ohlcv['date'][-1] < self.craw_db_last_min:
                 break
 
         time.sleep(TR_REQ_TIME_INTERVAL)
