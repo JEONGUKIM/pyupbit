@@ -1,7 +1,7 @@
-ver = "#version 1.3.2"
+ver = "#version 1.4.0"
 print(f"daily_buy_list Version: {ver}")
 
-from sqlalchemy import event
+from sqlalchemy import event, String
 
 from library.daily_crawler import *
 from library import cf
@@ -101,8 +101,15 @@ class daily_buy_list():
                                              'vol5', 'vol10', 'vol20', 'vol40', 'vol60', 'vol80',
                                              'vol100', 'vol120'
                                              ])
-
-                df_temp.to_sql(name=self.date_rows[k][0], con=self.engine_daily_buy_list, if_exists='replace')
+                df_temp.to_sql(
+                    name=self.date_rows[k][0],
+                    con=self.engine_daily_buy_list,
+                    if_exists='replace'
+                )
+                self.engine_daily_buy_list.execute(f"""
+                    CREATE INDEX ix_{self.date_rows[k][0]}_code
+                    ON daily_buy_list.`{self.date_rows[k][0]}` (code(6))
+                """)
 
     def get_stock_item_all(self):
         print("get_stock_item_all!!!!!!")
