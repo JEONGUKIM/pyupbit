@@ -1,6 +1,6 @@
 from functools import partial
 
-ver = "#version 1.3.12"
+ver = "#version 1.3.13"
 print(f"open_api Version: {ver}")
 
 from library.simulator_func_mysql import *
@@ -1348,6 +1348,14 @@ class open_api(QAxWidget):
     def _receive_chejan_data(self, gubun, item_cnt, fid_list):
         logger.debug("_receive_chejan_data 함수로 들어왔습니다!!!")
         logger.debug("gubun !!! :" + gubun)
+
+        account_num = self.get_chejan_data(9201)
+
+        # 선택 계좌가 아닐 시 아무 행동도 하지 않는다
+        if self.account_number != account_num:
+            logger.info(f"{self.account_number} != {account_num}")
+            return
+
         # 체결구분 접수와 체결
         if gubun == "0":
             logger.debug("in 체결 data!!!!!")
