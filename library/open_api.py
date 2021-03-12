@@ -1,6 +1,6 @@
 from functools import partial
 
-ver = "#version 1.3.13"
+ver = "#version 1.3.14"
 print(f"open_api Version: {ver}")
 
 from library.simulator_func_mysql import *
@@ -1393,7 +1393,7 @@ class open_api(QAxWidget):
             # logger.debug("체결량!!!")
             # logger.debug(self.get_chejan_data(911))
             # logger.debug("현재가, 체결가, 실시간종가")
-            purchase_price = self.get_chejan_data(10)
+            purchase_price = abs(int(self.get_chejan_data(10)))
 
             if code:
                 # 미체결 수량이 ""가 아닌 경우
