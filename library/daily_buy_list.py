@@ -1,4 +1,4 @@
-ver = "#version 1.4.0"
+ver = "#version 1.4.1"
 print(f"daily_buy_list Version: {ver}")
 
 from sqlalchemy import event, String
@@ -106,10 +106,13 @@ class daily_buy_list():
                     con=self.engine_daily_buy_list,
                     if_exists='replace'
                 )
-                self.engine_daily_buy_list.execute(f"""
-                    CREATE INDEX ix_{self.date_rows[k][0]}_code
-                    ON daily_buy_list.`{self.date_rows[k][0]}` (code(6))
-                """)
+                try:
+                    self.engine_daily_buy_list.execute(f"""
+                        CREATE INDEX ix_{self.date_rows[k][0]}_code
+                        ON daily_buy_list.`{self.date_rows[k][0]}` (code(6))
+                    """)
+                except Exception:
+                    pass
 
     def get_stock_item_all(self):
         print("get_stock_item_all!!!!!!")

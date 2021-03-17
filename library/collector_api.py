@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from sqlalchemy import Integer, Text, Float, String
 
-ver = "#version 1.4.0"
+ver = "#version 1.4.1"
 print(f"collector_api Version: {ver}")
 
 import datetime
@@ -403,10 +403,13 @@ class collector_api():
         df_temp.to_sql(name=code_name, con=self.open_api.engine_craw, if_exists='append')
         if is_new:
             index_name = ''.join(c for c in code_name if c.isalnum())
-            self.open_api.engine_craw.execute(f"""
-                CREATE INDEX ix_{index_name}_date
-                ON min_craw.`{code_name}` (date(12)) 
-            """)
+            try:
+                self.open_api.engine_craw.execute(f"""
+                    CREATE INDEX ix_{index_name}_date
+                    ON min_craw.`{code_name}` (date(12)) 
+                """)
+            except Exception:
+                pass
 
         # 콜렉팅하다가 max_api_call 횟수까지 가게 된 경우는 다시 콜렉팅 못한 정보를 가져와야 하니까 check_item_gubun=0
         if self.open_api.rq_count == cf.max_api_call - 1:
@@ -547,10 +550,13 @@ class collector_api():
         df_temp.to_sql(name=code_name, con=self.open_api.engine_daily_craw, if_exists='append')
         index_name = ''.join(c for c in code_name if c.isalnum())
         if deleted:
-            self.open_api.engine_daily_craw.execute(f"""
-                CREATE INDEX ix_{index_name}_date
-                ON daily_craw.`{code_name}` (date(8)) 
-            """)
+            try:
+                self.open_api.engine_daily_craw.execute(f"""
+                    CREATE INDEX ix_{index_name}_date
+                    ON daily_craw.`{code_name}` (date(8)) 
+                """)
+            except Exception:
+                pass
 
         # check_daily_crawler 가 4 인 경우는 액면분할, 증자 등으로 인해 daily_buy_list 업데이트를 해야하는 경우
         if check_daily_crawler == '4':
