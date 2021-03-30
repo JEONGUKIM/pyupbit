@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from sqlalchemy import Integer, Text, Float, String
 
-ver = "#version 1.4.1"
+ver = "#version 1.4.2"
 print(f"collector_api Version: {ver}")
 
 import datetime
@@ -426,10 +426,10 @@ class collector_api():
         check_row = None
         deleted = False
         check_daily_crawler_sql = """
-            UPDATE  daily_buy_list.stock_item_all SET check_daily_crawler = '4' WHERE code = '{}'
+            UPDATE daily_buy_list.stock_item_all SET check_daily_crawler = '4' WHERE code = '{}'
         """
 
-        if self.engine_JB.dialect.has_table(self.open_api.engine_daily_craw, code_name):
+        if self.open_api.engine_daily_craw.dialect.has_table(self.open_api.engine_daily_craw, code_name):
             check_row = self.open_api.engine_daily_craw.execute(f"""
                 SELECT * FROM `{code_name}` WHERE date = '{oldest_row['date']}' LIMIT 1
             """).fetchall()
@@ -524,7 +524,7 @@ class collector_api():
         df_temp['vol120'] = df_temp['volume'].rolling(window=120).mean()
 
         # 여기 이렇게 추가해야함
-        if self.engine_JB.dialect.has_table(self.open_api.engine_daily_craw, code_name):
+        if self.open_api.engine_daily_craw.dialect.has_table(self.open_api.engine_daily_craw, code_name):
             df_temp = df_temp[df_temp.date > self.open_api.get_daily_craw_db_last_date(code_name)]
 
         if len(df_temp) == 0 and check_daily_crawler != '4':
@@ -546,6 +546,9 @@ class collector_api():
                  'yes_clo5', 'yes_clo10', 'yes_clo20', 'yes_clo40', 'yes_clo60', 'yes_clo80', 'yes_clo100',
                  'yes_clo120',
                  'vol5', 'vol10', 'vol20', 'vol40', 'vol60', 'vol80', 'vol100', 'vol120']].fillna(0).astype(int)
+
+        # inf 를 NaN으로 변경 (inf can not be used with MySQL 에러 방지)
+        df_temp = df_temp.replace([numpy.inf, -numpy.inf], numpy.nan)
 
         df_temp.to_sql(name=code_name, con=self.open_api.engine_daily_craw, if_exists='append')
         index_name = ''.join(c for c in code_name if c.isalnum())
