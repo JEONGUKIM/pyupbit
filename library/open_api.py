@@ -1,6 +1,6 @@
 from functools import partial
 
-ver = "#version 1.3.14"
+ver = "#version 1.3.15"
 print(f"open_api Version: {ver}")
 
 from library.simulator_func_mysql import *
@@ -56,6 +56,7 @@ class RateLimitExceeded(Exception):
 
 def timedout_exit(widget):
     logger.debug("서버로 부터 응답이 없어 프로그램을 종료합니다.")
+    widget.clear()
     time.sleep(3)
     sys.exit(-1)
 
@@ -774,9 +775,12 @@ class open_api(QAxWidget):
         # 데이터 프레임이 비어있으면 False를 반환한다.
         if df.empty:
             return False
-        logger.debug("get_one_day_option_data df : {} ".format(df))
-        logger.debug("code : {},type(code): {}, start: {}, option: {} ".format(code, type(code), start, option))
-        logger.debug("df.iloc[0, 3] (close) : {} ".format(df.iloc[0, 3]))
+        try:
+            logger.debug("get_one_day_option_data df : {} ".format(df))
+            logger.debug("code : {},type(code): {}, start: {}, option: {} ".format(code, type(code), start, option))
+            logger.debug("df.iloc[0, 3] (close) : {} ".format(df.iloc[0, 3]))
+        except Exception as e:
+            logger.critical(e)
 
         if option == 'open':
             return df.iloc[0, 0]

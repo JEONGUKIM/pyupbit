@@ -1,4 +1,4 @@
-ver = "#version 1.3.9"
+ver = "#version 1.3.10"
 print(f"simulator_func_mysql Version: {ver}")
 import sys
 is_64bits = sys.maxsize > 2**32
@@ -8,15 +8,17 @@ else:
     print('32bit 환경입니다.')
 
 from sqlalchemy import event
-from sqlalchemy.exc import ProgrammingError
 
-from library.daily_crawler import *
 import pymysql.cursors
-# import numpy as np
-from datetime import timedelta
+
 from library.logging_pack import *
 from library import cf
 from pandas import DataFrame
+import re
+import datetime
+from sqlalchemy import create_engine
+
+pymysql.install_as_MySQLdb()
 
 
 class simulator_func_mysql:
@@ -31,6 +33,7 @@ class simulator_func_mysql:
         elif op == 'reset':
             self.op = 'reset'
             self.simul_reset = True
+            self.db_name = db_name
             self.variable_setting()
             self.rotate_date()
 
@@ -45,6 +48,7 @@ class simulator_func_mysql:
         elif op == 'continue':
             self.op = 'continue'
             self.simul_reset = False
+            self.db_name = db_name
             self.variable_setting()
             self.rotate_date()
         else:
@@ -402,13 +406,11 @@ class simulator_func_mysql:
 
     # DB 이름 세팅 함수
     def db_name_setting(self):
-        if self.op == "real":
-            self.engine_simulator = create_engine(
-                "mysql+mysqldb://" + cf.db_id + ":" + cf.db_passwd + "@" + cf.db_ip + ":" + cf.db_port + "/" + str(
-                    self.db_name),
-                encoding='utf-8')
-
-        else:
+        self.engine_simulator = create_engine(
+            "mysql+mysqldb://" + cf.db_id + ":" + cf.db_passwd + "@" + cf.db_ip + ":" + cf.db_port + "/" + str(
+                self.db_name),
+            encoding='utf-8')
+        if self.op != "real":
             # db_name을 setting 한다.
             self.db_name = "simulator" + str(self.simul_num)
             self.engine_simulator = create_engine(
@@ -426,7 +428,6 @@ class simulator_func_mysql:
             "mysql+mysqldb://" + cf.db_id + ":" + cf.db_passwd + "@" + cf.db_ip + ":" + cf.db_port + "/daily_buy_list",
             encoding='utf-8')
 
-        from library.open_api import escape_percentage
         event.listen(self.engine_simulator, 'before_execute', escape_percentage, retval=True)
         event.listen(self.engine_daily_craw, 'before_execute', escape_percentage, retval=True)
         event.listen(self.engine_craw, 'before_execute', escape_percentage, retval=True)
@@ -527,7 +528,7 @@ class simulator_func_mysql:
                 # 매수 주문에 들어간다.
                 self.invest_send_order(min_date, code, code_name, price, yes_close, j)
             else:
-                break;
+                break
 
     # 최근 daily_buy_list의 날짜 테이블에서 code에 해당 하는 row만 가져오는 함수
     def get_daily_buy_list_by_code(self, code, date):
@@ -1020,8 +1021,8 @@ class simulator_func_mysql:
         self.df_all_item.loc[0, 'high'] = df.loc[index, 'high']
         self.df_all_item.loc[0, 'low'] = df.loc[index, 'low']
         self.df_all_item.loc[0, 'volume'] = df.loc[index, 'volume']
-
-        self.df_all_item.loc[0, 'd1_diff_rate'] = float(df.loc[index, 'd1_diff_rate'])
+        if df.loc[index, 'd1_diff_rate'] is not None:
+            self.df_all_item.loc[0, 'd1_diff_rate'] = float(df.loc[index, 'd1_diff_rate'])
         self.df_all_item.loc[0, 'clo5'] = df.loc[index, 'clo5']
         self.df_all_item.loc[0, 'clo10'] = df.loc[index, 'clo10']
         self.df_all_item.loc[0, 'clo20'] = df.loc[index, 'clo20']
@@ -1816,6 +1817,18 @@ class simulator_func_mysql:
         # 마지막 jango_data 정리
         self.arrange_jango_data()
 
+
+# 수업 후 아래 함수 추가 되었습니다
+def escape_percentage(conn, clauseelement, multiparams, params):
+    # execute로 실행한 sql문이 들어왔을 때 %를 %%로 replace
+    if isinstance(clauseelement, str) and '%' in clauseelement and multiparams is not None:
+        while True:
+            replaced = re.sub(r'([^%])%([^%s])', r'\1%%\2', clauseelement)
+            if replaced == clauseelement:
+                break
+            clauseelement = replaced
+
+    return clauseelement, multiparams, params
 
 if __name__ == '__main__':
     logger.error('simulator.py로 실행해 주시기 바랍니다.')
