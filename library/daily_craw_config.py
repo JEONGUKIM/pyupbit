@@ -25,33 +25,8 @@ class daily_craw_config():
             self.daily_craw_db_con = self.engine.connect()
 
             self.get_item()
-            # self.date_rows_setting()
-            self.variable_setting()
-            # print("db name 0아니다!!!!!!!!!!!!!!!!!!!!!!")
         else:
             pass
-            # print("db name 0!!!!!!!!!!!!!!!!!!!")
-
-    # 업데이트가 금일 제대로 끝났는지 확인
-    def variable_setting(self):
-
-        self.market_start_time = QTime(9, 0, 0)
-        # self.market_start_time = QTime(15, 11, 0)
-        self.market_end_time = QTime(15, 31, 0)
-        # self.market_end_time = QTime(23, 12, 0)
-
-        self.today = datetime.datetime.today().strftime("%Y%m%d")
-        self.today_detail = datetime.datetime.today().strftime("%Y%m%d%H%M")
-        # self.today_detail_seconds = datetime.datetime.today().strftime("%H / %M / %S")
-
-    def market_time_check(self):
-        # print("market_time_check!!!")
-        self.current_time = QTime.currentTime()
-        if self.current_time > self.market_start_time and self.current_time < self.market_end_time:
-            return True
-        else:
-            print("end!!!")
-            return False
 
     # 불성실공시법인 가져오는 함수
     def get_item_insincerity(self):
@@ -140,10 +115,6 @@ class daily_craw_config():
         # 한글로된 컬럼명을 영어로 바꿔준다.
         self.code_df = self.code_df.rename(columns={'회사명': 'code_name', '종목코드': 'code'})
 
-    def change_format(self, data):
-        strip_data = data.replace('.', '')
-
-        return strip_data
 
 if __name__ == "__main__":
     daily_craw_config = daily_craw_config()

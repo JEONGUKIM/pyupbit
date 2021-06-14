@@ -1,9 +1,9 @@
-ver = "#version 1.4.3"
+ver = "#version 1.5.0"
 print(f"kind_crawling Version: {ver}")
 
 # 강의에서 패러럴즈 관련 내용은 패치하여 문제없이 작동하게 만들었으니 무시하셔도 괜찮습니다.
 # 엑셀 파일의 저장 위치는 기존 다운로드 폴더에서 bot 프로젝트 폴더안의 KIND_xls로 변경 되었습니다.
-# 크롬드라이버설치 위치 C:chromedriver/chromedrive.exe
+# 크롬드라이버설치 위치 C:chromedriver/chromedrive.exe => 자동으로 크롬드라이버가 설치 되도록 업데이트 되었습니다. 따로 C드라이브에 설치 하지 않으셔도 됩니다.
 
 import datetime
 import os
@@ -237,7 +237,12 @@ class KINDCrawler:
         options = webdriver.ChromeOptions()
         # Selenium이 띄운 크롬창의 다운로드 폴더 경로를 지정 (bot 프로젝트 폴더안의 KIND_xls 폴더)
         options.add_experimental_option("prefs", {"download.default_directory": str(self.download_path)})
-        self.driver = webdriver.Chrome("C:\chromedriver\chromedriver.exe", options=options)
+
+        path = self.chrome_driver_update() # 크롬 드라이버를 자동으로 path 위치에 설치합니다
+
+        '''자동으로 크롬드라이버가 설치 되도록 업데이트 되었습니다. 따로 C드라이브에 크롬드라이버를 설치 하지 않으셔도 됩니다.'''
+        self.driver = webdriver.Chrome(path, options=options)
+        self.driver.implicitly_wait(10)  # get(url)로 요청한 페이지 내용들이 모두 로딩이 완료될 때까지 int(초) 만큼 암묵적으로 기다린다
 
         self.actions = ActionChains(self.driver)  # 스크롤 이동을 위한 ActionChains 객체
         self.check_version()  # 버전 체크
@@ -304,7 +309,30 @@ class KINDCrawler:
     def take_snapshot(self, filename):
         self.driver.save_screenshot(str(self.snapshot_path / filename))
 
+    def chrome_driver_update(self):
+        print("chrome_driver_update..")
+        update = True
+        # pip install check-chromedriver
+        package_name = 'chromedriver-autoinstaller'
+        pip_show_list = os.popen(f"pip show {package_name}").read().strip().split('\n')
+        for pip_show_str in pip_show_list:
+            if package_name not in pip_show_str:
+                continue
+            else:
+                update = False
+                break
+        if update:
+            os.system(f'pip install {package_name}==0.2.2')
+            print(f"성공적으로 {package_name} 패키지를 설치 했습니다")
 
+        import chromedriver_autoinstaller
+        path = chromedriver_autoinstaller.install()  # Check if the current version of chromedriver exists
+                                              # and if it doesn't exist, download it automatically,
+                                              # then add chromedriver to path
+
+
+        print("chrome_driver_update 완료!")
+        return path
 if __name__ == "__main__":
     client = KINDCrawler()
     client.craw()
