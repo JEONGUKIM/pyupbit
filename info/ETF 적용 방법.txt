@@ -66,7 +66,7 @@
 
 1. cf파일의 use_etf = True로 변경
 
-2. 만약 오늘 콜렉터를 돌리셨다면 setting_data 테이블에 code_update, daily_crawler, min_crawler, today_buy_list, daily_byu_list 컬럼 모두 0 넣기
+2. 만약 오늘 콜렉터를 돌리셨다면 setting_data 테이블에 code_update, daily_crawler, min_crawler, today_buy_list 컬럼 모두 0 넣기 
 
 3. 이후 콜렉터 실행 
 
