@@ -229,6 +229,7 @@ class simulator_func_mysql:
 
             elif self.simul_num == 17:
                 self.db_to_realtime_daily_buy_list_num = 12
+
             elif self.simul_num == 18:
                 self.db_to_realtime_daily_buy_list_num = 13
                 # stock_finance에 데이터가 쌓인 시점의 다음날로 self.simul_start_date 를 설정
@@ -658,6 +659,7 @@ class simulator_func_mysql:
 
             sql = "select * from `" + date_rows_yesterday + "` a where yes_clo20 > yes_clo5 and clo5 > clo20 " \
                                                             "and NOT exists (select null from stock_konex b where a.code=b.code) " \
+                                                            "AND NOT exists (SELECT null FROM stock_etf b WHERE a.code=b.code)" \
                                                             "and close < '%s' group by code"
             realtime_daily_buy_list = self.engine_daily_buy_list.execute(sql % (self.invest_unit)).fetchall()
 
@@ -796,6 +798,7 @@ class simulator_func_mysql:
             '''
             realtime_daily_buy_list = self.engine_daily_buy_list.execute(sql).fetchall()
 
+            # 저PER, 저PBR을(금융지표 stock_finance) 를 활용한 매수 알고리즘
         elif self.db_to_realtime_daily_buy_list_num == 13:
             sql = f'''
                 SELECT DAY.*
